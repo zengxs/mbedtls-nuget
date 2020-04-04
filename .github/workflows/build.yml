@@ -44,6 +44,7 @@ jobs:
     - uses: actions/download-artifact@v1
       with:
         name: osx-x64-runtimes
+        path: runtimes
 
     - id: pack
       run: |
