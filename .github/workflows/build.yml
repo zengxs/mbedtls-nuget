@@ -23,11 +23,34 @@ jobs:
       env:
         SHARED: 1
       run: |
-        make -C mbedtls no_test
+        make -C mbedtls lib
         mkdir -p runtimes/osx-x64/native
         cp mbedtls/**/*.dylib runtimes/osx-x64/native
 
     - uses: actions/upload-artifact@v1
       with:
-        name: osx-x64-dylibs
+        name: osx-x64-runtimes
         path: runtimes
+
+  pack:
+    name: Generate NuGet Package
+    needs:
+    - build-osx-x64
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@v1
+      with:
+        name: osx-x64-runtimes
+
+    - id: pack
+      run: |
+        dotnet pack
+        echo "::set-output name=file::$(ls *.nupkg)"
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.pack.outputs.file }}
+        path: ${{ steps.pack.outputs.file }}

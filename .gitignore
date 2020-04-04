@@ -1,3 +1,7 @@
+bin/
+obj/
+*.nupkg
+
 runtimes/**/*.dylib
 runtimes/**/*.so
 runtimes/**/*.dll

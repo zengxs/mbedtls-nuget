@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <NoBuild>true</NoBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <PackageOutputPath>$(MSBuildProjectDirectory)</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>mbedtls</PackageId>
+    <VersionPrefix>2.16.5</VersionPrefix>
+    <VersionSuffix>build0</VersionSuffix>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://tls.mbed.org/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/zengxs/mbedtls-nuget.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="LICENSE" PackagePath="" />
+
+    <Content Include="runtimes/osx-x64/native/*.dylib" PackagePath="runtimes/osx-x64/native" />
+  </ItemGroup>
+</Project>
