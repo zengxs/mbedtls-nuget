@@ -20,10 +20,8 @@ jobs:
 
     - name: Build libraries (osx-x64)
       if: steps.cache-osx-x64.outputs.cache-hit != 'true'
-      env:
-        SHARED: 1
       run: |
-        make -C mbedtls lib
+        make -C mbedtls -e SHARED=1 lib
         mkdir -p runtimes/osx-x64/native
         cp mbedtls/**/*.dylib runtimes/osx-x64/native
 
@@ -32,10 +30,41 @@ jobs:
         name: osx-x64-runtimes
         path: runtimes
 
+  build-win-x64:
+    name: Build for win-x64
+    runs-on: windows-2016
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Cache dlls
+        id: cache-win-x64
+        uses: actions/cache@v1
+        with:
+          path: runtimes
+          key: win-x64-${{ hashFiles('mbedtls/**') }}
+
+      - name: Build libraries (win-x64)
+        if: steps.cache-win-x64.outputs.cache-hit != 'true'
+        run: |
+          cmake -A x64 -S mbedtls -B build -D USE_SHARED_MBEDTLS_LIBRARY=ON
+          cmake --build build -t mbedtls_static -- /nologo /p:Configuration=Release
+          cmake --build build -t mbedtls -- /nologo /p:Configuration=Release
+          mkdir runtimes\win-x64\native
+          Get-ChildItem -Path build -Recurse | Where-Object { $_.Extension -eq ".dll" } | Copy-Item -Destination runtimes\win-x64\native
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: win-x64-runtimes
+          path: runtimes
+
   pack:
     name: Generate NuGet Package
     needs:
     - build-osx-x64
+    - build-win-x64
     runs-on: ubuntu-latest
 
     steps:
@@ -44,6 +73,11 @@ jobs:
     - uses: actions/download-artifact@v1
       with:
         name: osx-x64-runtimes
+        path: runtimes
+
+    - uses: actions/download-artifact@v1
+      with:
+        name: win-x64-runtimes
         path: runtimes
 
     - id: pack
