@@ -22,5 +22,6 @@
 
     <Content Include="runtimes/osx-x64/native/*.dylib" PackagePath="runtimes/osx-x64/native" />
     <Content Include="runtimes/win-x64/native/*.dll" PackagePath="runtimes/win-x64/native" />
+    <Content Include="runtimes/win-x86/native/*.dll" PackagePath="runtimes/win-x86/native" />
   </ItemGroup>
 </Project>

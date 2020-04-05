@@ -60,11 +60,42 @@ jobs:
           name: win-x64-runtimes
           path: runtimes
 
+  build-win-x86:
+    name: Build for win-x86
+    runs-on: windows-2016
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Cache dlls
+        id: cache-win-x86
+        uses: actions/cache@v1
+        with:
+          path: runtimes
+          key: win-x86-${{ hashFiles('mbedtls/**') }}
+
+      - name: Build libraries (win-x86)
+        if: steps.cache-win-x86.outputs.cache-hit != 'true'
+        run: |
+          cmake -A Win32 -S mbedtls -B build -D USE_SHARED_MBEDTLS_LIBRARY=ON
+          cmake --build build -t mbedtls_static -- /nologo /p:Configuration=Release
+          cmake --build build -t mbedtls -- /nologo /p:Configuration=Release
+          mkdir runtimes\win-x86\native
+          Get-ChildItem -Path build -Recurse | Where-Object { $_.Extension -eq ".dll" } | Copy-Item -Destination runtimes\win-x86\native
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: win-x86-runtimes
+          path: runtimes
+
   pack:
     name: Generate NuGet Package
     needs:
     - build-osx-x64
     - build-win-x64
+    - build-win-x86
     runs-on: ubuntu-latest
 
     steps:
@@ -78,6 +109,11 @@ jobs:
     - uses: actions/download-artifact@v1
       with:
         name: win-x64-runtimes
+        path: runtimes
+
+    - uses: actions/download-artifact@v1
+      with:
+        name: win-x86-runtimes
         path: runtimes
 
     - id: pack
